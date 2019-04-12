@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import { Pane, TextInputField, Textarea, Label, Button } from 'evergreen-ui';
 
 class AuthorForm extends Component {
-  constructor(props) {
-    super(props);
-  }
-  
   state = {
     formValue: {
       name: "",
