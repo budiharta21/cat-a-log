@@ -1,27 +1,18 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import { Pane, Heading } from 'evergreen-ui';
+import OtherListContainer from './containers/OtherListContainer/index';
 class App extends Component {
   render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
+    return (<div>
+      <Pane display="flex" padding={16} borderRadius={3} elevation={2}>
+        <Pane flex={1} alignItems="center" display="flex">
+          <Heading size={600}>CTLG</Heading>
+        </Pane>
+      </Pane>
+
+      <OtherListContainer/>
+
+    </div>);
   }
 }
 
