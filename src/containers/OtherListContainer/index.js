@@ -8,26 +8,30 @@ class OtherListContainer extends Component {
     selectedTab: "author",
   };
 
-  onChangeMenu = (selectedTab) => () => {
+  onChangeMenu = (selectedTab) => {
     this.setState({ selectedTab });
   };
 
   render() {
     const { selectedTab } = this.state;
 
+    const availableMenu = [
+      { label: "Author", value: "author" },
+      { label: "Category", value: "category" },
+      { label: "Publisher", value: "publisher" },
+      { label: "Store", value: "store" },
+    ];
+    
     return (<div>
-      <Pane display="flex" marginTop={16}>
-        <Pane width={"25%"} display="inline-block" padding={16} borderRadius={3} elevation={1}>
-          <Menu>
-            <Menu.Group>
-              <Menu.Item onSelect={this.onChangeMenu("author")}>Author</Menu.Item>
-              <Menu.Item onSelect={this.onChangeMenu("category")}>Category</Menu.Item>
-              <Menu.Item onSelect={this.onChangeMenu("publisher")}>Publisher</Menu.Item>
-              <Menu.Item onSelect={this.onChangeMenu("store")}>Store</Menu.Item>
-            </Menu.Group>
-          </Menu>
+      <Pane display='flex' marginTop={16}>
+        <Pane width='25%' height='100%' display='inline-block' padding={16} borderRadius={3} elevation={1}>
+          <Menu.OptionsGroup
+            title='Other List'
+            options={availableMenu}
+            selected={selectedTab}
+            onChange={item => this.onChangeMenu(item)}/>
         </Pane>
-        <Pane display="inline-block" width={"74%"} marginLeft={"1%"} padding={16} borderRadius={3} elevation={1}>
+        <Pane display='inline-block' width='74%' marginLeft='1%' padding={16} borderRadius={3} elevation={1}>
           {selectedTab === "author" && <AuthorContainer />}
         </Pane>
       </Pane>
