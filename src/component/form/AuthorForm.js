@@ -22,9 +22,22 @@ class AuthorForm extends Component {
     onCommit(formValue);
   }
 
+  componentDidMount() {
+    const { initialValue } = this.props;
+		if (initialValue) {
+      const formValue = { 
+        name: initialValue.name,
+        biography: initialValue.biography,
+      }
+
+      this.setState({ formValue });
+    }
+  }
+
   render() {
     const { formValue } = this.state;
     const { onCancel } = this.props;
+    const isReadyForSubmit = (!!formValue.name && !!formValue.biography);
 
     return (<div>
       <TextInputField label="Name" 
@@ -44,7 +57,7 @@ class AuthorForm extends Component {
       </Pane>
       <br/>
       <Pane display="flex" justifyContent="flex-end">
-        <Button appearance="primary" onClick={this.onSave}>Save</Button>
+        <Button appearance="primary" disabled={!isReadyForSubmit} onClick={this.onSave}>Save</Button>
         &nbsp;
         <Button onClick={onCancel}>Cancel</Button>
       </Pane>
