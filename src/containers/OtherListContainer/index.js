@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Pane, Menu } from 'evergreen-ui';
 
 import AuthorContainer from './AuthorContainer';
+import PublisherContainer from './PublisherContainer';
 
 class OtherListContainer extends Component {
   state = {
@@ -29,6 +30,7 @@ class OtherListContainer extends Component {
         </Pane>
         <Pane display="inline-block" width={"74%"} marginLeft={"1%"} padding={16} borderRadius={3} elevation={1}>
           {selectedTab === "author" && <AuthorContainer />}
+          {selectedTab === "publisher" && <PublisherContainer />}
         </Pane>
       </Pane>
     </div>);
