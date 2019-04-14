@@ -25,9 +25,25 @@ class PublisherForm extends Component {
     onCommit(formValue);
   }
 
+  componentDidMount() {
+    const { initialValue } = this.props;
+    if (initialValue) {
+      const formValue = {
+        name: initialValue.name,
+        phone: initialValue.phone,
+        email: initialValue.email,
+        address: initialValue.address,
+      }
+
+      this.setState({ formValue });
+    }
+  }
+
   render() {
     const { formValue = {} } = this.state;
     const { onCancel } = this.props;
+
+    const isReadyForSubmit = (!!formValue.name && !!formValue.phone && !!formValue.email && !!formValue.address);
 
     return (<div>
       <TextInputField label="Name" 
@@ -54,7 +70,7 @@ class PublisherForm extends Component {
       </Pane>
       <br/>
       <Pane display="flex" justifyContent="flex-end">
-        <Button appearance="primary" onClick={this.onSave}>Save</Button>
+        <Button appearance="primary" disabled={!isReadyForSubmit} onClick={this.onSave}>Save</Button>
         &nbsp;
         <Button onClick={onCancel}>Cancel</Button>
       </Pane>
