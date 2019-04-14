@@ -29,11 +29,24 @@ class CategoryForm extends Component{
     this.setState({ formValue });
   }
 
+  componentDidMount() {
+    const { initialValue } = this.props;
+
+    if (initialValue) {
+      const formValue = {
+        name: initialValue.name,
+        description: initialValue.description
+      }
+      this.setState({ formValue })
+    }
+
+  }
+
 
   render() {
     const { formValue } = this.state;
     const { onCancel } = this.props;
-    // const isReadyForSubmit = ( !!formValue.name && !!formValue.description )
+    const isReadyForSubmit = ( !!formValue.name && !!formValue.description )
 
     return(<div>
       <Pane>
@@ -56,7 +69,7 @@ class CategoryForm extends Component{
       </Pane>
       <br/>
       <Pane display="flex" justifyContent="flex-end">
-        <Button appearance="primary" onClick={this.onSave} >Save</Button>
+        <Button appearance="primary" disabled={!isReadyForSubmit} onClick={this.onSave} >Save</Button>
         &nbsp;
         <Button onClick={onCancel} >Cancel</Button>
       </Pane>
