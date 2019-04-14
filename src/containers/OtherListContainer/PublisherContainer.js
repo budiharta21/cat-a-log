@@ -31,8 +31,10 @@ class PublisherContainer extends Component {
 
   onDelete = (index) => () => {
     const { publishers = [] } = this.state;
-    publishers.splice(index, 1);
-    this.setState({ publishers });
+    if (window.confirm('Are you sure to delete this publisher ?')) {
+      publishers.splice(index, 1);
+      this.setState({ publishers });
+    }
   }
 
   onEdit = (publisher, index) => () => {
