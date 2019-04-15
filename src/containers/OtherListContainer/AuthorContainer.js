@@ -90,6 +90,7 @@ class AuthorContainer extends Component {
             <Table.TextHeaderCell>Biography</Table.TextHeaderCell>
             <Table.TextHeaderCell>Options</Table.TextHeaderCell>
           </Table.Head>
+
           <Table.Body height={320}>
             {sortedAuthors.map((author, index) => (
               <Table.Row key={index}>
