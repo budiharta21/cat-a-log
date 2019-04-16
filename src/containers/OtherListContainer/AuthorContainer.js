@@ -41,6 +41,8 @@ class AuthorContainer extends Component {
       this.loadAll();
       this.onCancelAdd();
       toaster.success("Author has been created!");
+    }).catch(() => {
+      toaster.danger("Something error, cant create author!");
     });
   }
 
@@ -48,7 +50,9 @@ class AuthorContainer extends Component {
     Author.destroy(author.id).then(() => {
       this.loadAll();
       toaster.success("Author has been deleted!");
-    });
+    }).catch(() => {
+      toaster.danger("Something error, cant delete author!");
+    });;
   }
 
   onEdit = (author) => () => {
@@ -66,7 +70,9 @@ class AuthorContainer extends Component {
       this.loadAll();
       this.onCancelEdit();
       toaster.success("Author has been updated!");
-    });
+    }).catch(() => {
+      toaster.danger("Something error, cant update author!");
+    });;
   }
 
   componentDidMount() {
