@@ -7,35 +7,52 @@ import {
   Icon,
   IconButton,
   Table,
+  Text,
+  toaster,
 } from 'evergreen-ui';
+import Loading from '../../component/Loading';
+
+import Author from '../../actions/author';
 
 import AuthorForm from '../../component/form/AuthorForm';
 
 class AuthorContainer extends Component {
   state = {
+    isLoading: false,
     authors: [],
     isOpen: false,
     editedAuthor: null
   };
 
+  loadAll = () => {
+    this.setState({ isLoading: true });
+    Author.loadAll().then(data => {
+      const { data: { data: authors = [] } } = data;
+      this.setState({ isLoading: false, authors });
+    });
+  }
+
   onAdd = () => this.setState({ isOpen: true });
+
   onCancelAdd = () => this.setState({ isOpen: false });
 
   onCommitAdd = (values) => {
-    const { authors = [] } = this.state;
-    authors.push(values);
-    this.setState({ authors });
-    this.onCancelAdd();
+    Author.create(values).then(() => {
+      this.loadAll();
+      this.onCancelAdd();
+      toaster.success("Author has been created!");
+    });
   }
 
-  onDelete = (index) => () => {
-    const { authors = [] } = this.state;
-    authors.splice(index, 1);
-    this.setState({ authors });
+  onDelete = (author) => () => {
+    Author.destroy(author.id).then(() => {
+      this.loadAll();
+      toaster.success("Author has been deleted!");
+    });
   }
 
-  onEdit = (author, index) => () => {
-    const editedAuthor = { ...author, index };
+  onEdit = (author) => () => {
+    const editedAuthor = { ...author };
     this.setState({ editedAuthor });
   }
 
@@ -44,17 +61,20 @@ class AuthorContainer extends Component {
   }
 
   onCommitEdit = (values) => {
-    const { editedAuthor, authors = [] } = this.state;
-    authors[editedAuthor.index] = { ...values };
-    this.setState({ authors });
-    this.onCancelEdit();
+    const { editedAuthor } = this.state;
+    Author.update(editedAuthor.id, values).then(() => {
+      this.loadAll();
+      this.onCancelEdit();
+      toaster.success("Author has been updated!");
+    });
+  }
+
+  componentDidMount() {
+    this.loadAll();
   }
 
   render() {
-    const { authors = [], isOpen, editedAuthor } = this.state;
-    const sortedAuthors = authors.sort((a, b) => {
-      return a.name < b.name ? -1 : 1;
-    });
+    const { isLoading, authors = [], isOpen, editedAuthor } = this.state;
     
     return (<Pane>
       <SideSheet isShown={isOpen} onCloseComplete={this.onCancelAdd}>
@@ -83,8 +103,10 @@ class AuthorContainer extends Component {
       </Button>
 
       <Pane marginTop={24}>
-        {sortedAuthors.length === 0 && <center><em>There's no author added yet.</em></center>}
-        {sortedAuthors.length > 0 && <Table>
+        {isLoading && <Loading label='Loading authors...'/>}
+
+        {!isLoading && authors.length === 0 && <center><Text>There's no author added yet.</Text></center>}
+        {!isLoading && authors.length > 0 && <Table>
           <Table.Head>
             <Table.TextHeaderCell>Name</Table.TextHeaderCell>
             <Table.TextHeaderCell>Biography</Table.TextHeaderCell>
@@ -92,14 +114,14 @@ class AuthorContainer extends Component {
           </Table.Head>
 
           <Table.Body height={320}>
-            {sortedAuthors.map((author, index) => (
+            {authors.map((author, index) => (
               <Table.Row key={index}>
                 <Table.TextCell>{author.name}</Table.TextCell>
                 <Table.TextCell>{author.biography}</Table.TextCell>
                 <Table.TextCell>
                   <IconButton display='inline' onClick={this.onEdit(author, index)} icon="edit"/>
                   &nbsp;
-                  <IconButton display='inline' onClick={this.onDelete(index)} icon="trash" intent="danger"/>
+                  <IconButton display='inline' onClick={this.onDelete(author)} icon="trash" intent="danger"/>
                 </Table.TextCell>
               </Table.Row>
             ))}
