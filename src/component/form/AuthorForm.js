@@ -51,6 +51,7 @@ class AuthorForm extends Component {
           Biography
         </Label>
         <Textarea label="Biography" 
+          rows={10}
           placeholder="Biography"
           value={formValue.biography}
           onChange={this.onChange("biography")}/>
