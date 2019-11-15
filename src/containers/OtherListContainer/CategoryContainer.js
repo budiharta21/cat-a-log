@@ -6,58 +6,102 @@ import {
   Heading, 
   Icon,
   Table,
-  IconButton
+  IconButton,
+  toaster,
+  Dialog
 } from 'evergreen-ui';
 
+import Category from '../../actions/category';
 import CategoryForm from '../../component/form/CategoryForm';
 
 class CategoryContainer extends Component{
 
   state = {
+    isLoading: false,
     categories: [],
-    isOpen: false,
-    editedCategory: null
+    isShowModal: false,
+    isOpenSidebar: false,
+    editedCategory: null,
+    deletedCategory: null,
   }
 
-  onAdd = () => this.setState({ isOpen:true })
-  onCancelAdd = () => this.setState({ isOpen:false })
+  loadAll = () => {
+    this.setState({ isLoading: true });
+    Category.loadAll().then(data => {
+      const { data: { data: categories = [] } } = data;
+      this.setState({ isLoading: false, categories })
+    })
+  }
+
+  onAdd = () => this.setState({ isOpenSidebar: true })
+  onCancelAdd = () => this.setState({ isOpenSidebar: false })
   
   onCommitAdd = (values) => {
-    const { categories = [] } = this.state;
-    categories.push(values);
-    this.setState({ categories });
-    this.onCancelAdd();
+    Category.create(values).then(() => {
+      this.loadAll();
+      this.onCancelAdd();
+      toaster.success("Category has been created!");
+    }).catch(() => {
+      toaster.danger("Something error, cant create category!");
+    })
   }
 
-  onDelete = (index) => () =>{
-    const { categories = [] } = this.state;
-    categories.splice(index, 1);
-    this.setState({ categories });
+  onDelete = (category) => () =>{
+    this.setState({ 
+      isShowModal: true,
+      deletedCategory: category,
+    })
   }
 
-  onEdit = (category, index) => () => {
-    const editedCategory = {...category, index};
+  onCancelDelete = () => {
+    this.setState({ 
+      isShowModal: false, 
+      deletedCategory: null 
+    })
+  } 
+
+  onCommitDelete = () => {
+    const { deletedCategory } = this.state;
+    Category.destroy(deletedCategory.id).then(() => {
+      this.loadAll();
+      toaster.success("Category has been deleted!");
+    }).catch(() => {
+      toaster.danger("Something error, cant delete category!");
+    })
+    this.onCancelDelete();
+  }
+  
+  onEdit = (category) => () => {
+    const editedCategory = {...category};
     this.setState({ editedCategory });
   }
-
+  
   onCancelEdit = () => this.setState({ editedCategory: null }) 
-
+  
   onCommitEdit = (values) =>{
-    const { editedCategory, categories = [] } = this.state;
-    categories[editedCategory.index] = { ...values };
-    this.setState({ categories });
-    this.onCancelEdit();
+    const { editedCategory } = this.state;
+    Category.update(editedCategory.id, values).then(() => {
+      this.loadAll();
+      this.onCancelEdit();
+      toaster.success("Category has been updated!");
+    }).catch(() => {
+      toaster.danger("Something error, cant update category!");
+    })
+  
   }
 
+  componentDidMount() {
+    this.loadAll();
+  }
 
   render () {
-    const { categories = [], isOpen, editedCategory } = this.state;
+    const { categories = [], isOpenSidebar, editedCategory, isShowModal } = this.state;
     const sortedCategory = categories.sort((a, b) => {
       return a.name < b.name ? -1 : 1;
     }); 
     return(
       <Pane>
-        <SideSheet isShown={isOpen} onCloseComplete={this.onCancelAdd}>
+        <SideSheet isShown={isOpenSidebar} onCloseComplete={this.onCancelAdd}>
           <Pane zIndex={1} flexShrink={0} elevation={0}>
             <Pane padding={16}>
               <Heading size={600}>Add Category</Heading>
@@ -84,12 +128,12 @@ class CategoryContainer extends Component{
         </Button> 
           
         <Pane  marginTop={24}> 
-        {sortedCategory.length === 0 && <center><em>There's no author added yet.</em></center>}
+        {sortedCategory.length === 0 && <center><em>There's no categories added yet.</em></center>}
         {sortedCategory.length > 0 && 
           <Table>
             <Table.Head>
               <Table.TextHeaderCell>Name</Table.TextHeaderCell>
-              <Table.TextHeaderCell>Biography</Table.TextHeaderCell>
+              <Table.TextHeaderCell>Description</Table.TextHeaderCell>
               <Table.TextHeaderCell>Options</Table.TextHeaderCell>
             </Table.Head>
 
@@ -101,7 +145,7 @@ class CategoryContainer extends Component{
                 <Table.TextCell>
                   <IconButton display='inline' onClick={this.onEdit(category, index)} icon="edit"/>
                     &nbsp;
-                  <IconButton display='inline' onClick={this.onDelete(index)} icon="trash" intent="danger"/>
+                  <IconButton display='inline' onClick={this.onDelete(category)} icon="trash" intent="danger"/>
                 </Table.TextCell>
               </Table.Row>
             ))}
@@ -109,6 +153,17 @@ class CategoryContainer extends Component{
           </Table>
         }
         </Pane>
+
+        <Dialog
+          isShown={isShowModal}
+          title="Delete Category"
+          intent="danger"
+          onCloseComplete={this.onCancelDelete}
+          onConfirm={this.onCommitDelete}
+          minHeightContent={40}
+          confirmLabel="Delete">
+          Are you sure want to delete this category?
+        </Dialog>
       </Pane> 
     )
   }
